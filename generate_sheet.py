@@ -4,7 +4,7 @@ import matplotlib.patches as patches
 from matplotlib.patches import ConnectionPatch
 from matplotlib.lines import Line2D
 
-# Cスタートの鍵盤マッピング (C D E F G A B)
+# Keyboard mapping starting from C (C D E F G A B)
 c_note_mapping = {
     0: (True, 0), 1: (False, 0), 2: (True, 1), 3: (False, 1),
     4: (True, 2), 5: (True, 3), 6: (False, 2), 7: (True, 4),
@@ -12,7 +12,7 @@ c_note_mapping = {
 }
 c_black_positions = [0.7, 1.7, 3.7, 4.7, 5.7]
 
-# Fスタートの鍵盤マッピング (F G A B C D E)
+# Keyboard mapping starting from F (F G A B C D E)
 f_note_mapping = {
     5: (True, 0), 6: (False, 0), 7: (True, 1), 8: (False, 1),
     9: (True, 2), 10: (False, 2), 11: (True, 3), 0: (True, 4),
@@ -81,18 +81,18 @@ def draw_keyboard(ax, title, w_in_scale, b_in_scale, w_labels, b_labels, w_is_ro
             ax.text(i + 0.5, y_pos, w_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=3,
                     bbox=dict(boxstyle=f"circle,pad={pad_size}", fc="white", ec="black", lw=l_weight))
 
-    # Draw black keys (位置を動的に変更)
+    # Draw black keys (positions are dynamically adjusted)
     for i, pos in enumerate(black_positions):
-        # 1. ベースとなる黒鍵（常に黒）
+        # 1. Base black key (always solid black)
         base_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='black', zorder=2)
         ax.add_patch(base_rect)
         
-        # スケール外の黒鍵のみ「白の網掛け」を追加
+        # Add white dotted hatching only for black keys not in the scale
         if not b_in_scale[i]:
-            # 2. 白い点のレイヤー
+            # 2. White dots layer
             hatch_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='white', facecolor='none', hatch='..', zorder=2.1)
             ax.add_patch(hatch_rect)
-            # 3. 外枠が白くならないように黒い枠線を再描画
+            # 3. Redraw black border to prevent it from turning white
             border_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='none', zorder=2.2)
             ax.add_patch(border_rect)
             
@@ -151,7 +151,7 @@ def generate_cheat_sheet(mode="dynamic", output_prefix="scale_cheat_sheet"):
     for grid_index, root_note in enumerate(display_order):
         ax = axes_flat[grid_index]
         
-        # 引数(mode)による表示パターンの切り替え
+        # Switch display pattern based on the 'mode' argument
         if mode == "dynamic":
             use_f_start = root_note >= 5
         elif mode == "f":
