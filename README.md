@@ -7,9 +7,9 @@ Generate a beautifully visualized Piano Scale Cheat Sheet with Python! The gener
 ## ✨ Features of the Generated Sheet
 
 * **Visualizes scale notes on the keyboard at a glance**
-  * **Emphasized root notes:** The root note of each key is highlighted with a larger circled label.
+  * **Emphasized root notes:** The root note of each key is highlighted with a larger circled label. It is placed on the left side of the keyboard.
   * **Easy tracking of sharps and flats:** The display clearly indicates not only the physical positions of sharps (#) and flats (b), but also their total count within the key.
-  * **Whole step indication:** Non-scale keys are shaded with a dotted pattern, making it visually explicit when two scale notes are separated by a whole step.
+  * **Whole step indication:** Non-scale keys are shaded with a dotted pattern, making it visually explicit when two scale notes are separated by a whole step. 
 * **Circle of Fifths layout:** Keys with a perfect fifth relationship are placed directly adjacent to one another.
 
 ## 🚀 How to Use
@@ -21,7 +21,14 @@ Generate a beautifully visualized Piano Scale Cheat Sheet with Python! The gener
 
 2. Run the script:
    ```bash
-   python scale_cheat_sheet.py
+   python generate_sheet.py
+   ```
+   
+   **Optional:** You can also force all keyboards to start with a specific note using the `--mode` argument:
+   ```bash
+   python generate_sheet.py --mode dynamic  # Mixed for best fit (Default)
+   python generate_sheet.py --mode c        # All keyboards start with C
+   python generate_sheet.py --mode f        # All keyboards start with F
    ```
 
 3. Open the generated `scale_cheat_sheet.pdf`!
