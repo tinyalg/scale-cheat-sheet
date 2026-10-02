@@ -236,7 +236,7 @@ def generate_cheat_sheet(mode="dynamic", output_prefix="scale_cheat_sheet"):
     # Save outputs
     fig_png = create_figure(w_dot_color='#888888', b_color='black')
     fig_png.savefig(f'{output_prefix}.png', dpi=300, bbox_inches='tight')
-    plt.close(fig_png) # メモリ解放のために閉じる
+    plt.close(fig_png)
 
     fig_pdf = create_figure(w_dot_color='#999999', b_color='#444444')
     fig_pdf.savefig(f'{output_prefix}.pdf')
