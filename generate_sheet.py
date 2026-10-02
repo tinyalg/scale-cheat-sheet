@@ -3,12 +3,21 @@ import matplotlib.patches as patches
 from matplotlib.patches import ConnectionPatch
 from matplotlib.lines import Line2D
 
-# Mapping of the 12 chromatic notes to keyboard rendering indices (is_white, index)
-note_mapping = {
+# Cスタートの鍵盤マッピング (C D E F G A B)
+c_note_mapping = {
     0: (True, 0), 1: (False, 0), 2: (True, 1), 3: (False, 1),
     4: (True, 2), 5: (True, 3), 6: (False, 2), 7: (True, 4),
     8: (False, 3), 9: (True, 5), 10: (False, 4), 11: (True, 6)
 }
+c_black_positions = [0.7, 1.7, 3.7, 4.7, 5.7]
+
+# Fスタートの鍵盤マッピング (F G A B C D E)
+f_note_mapping = {
+    5: (True, 0), 6: (False, 0), 7: (True, 1), 8: (False, 1),
+    9: (True, 2), 10: (False, 2), 11: (True, 3), 0: (True, 4),
+    1: (False, 3), 2: (True, 5), 3: (False, 4), 4: (True, 6)
+}
+f_black_positions = [0.7, 1.7, 2.7, 4.7, 5.7]
 
 # Key names with relative minors
 key_names = [
@@ -53,7 +62,8 @@ display_order = [
     8,  1,  6    # Ab, Db, Gb
 ]
 
-def draw_keyboard(ax, title, white_colors, black_colors, white_labels, black_labels, w_is_root, b_is_root, w_hatches, b_hatches):
+# 追加: black_positionsを引数で受け取るように変更
+def draw_keyboard(ax, title, white_colors, black_colors, white_labels, black_labels, w_is_root, b_is_root, w_hatches, b_hatches, black_positions):
     """Draws a one-octave keyboard with circled note labels"""
     # Draw white keys
     for i in range(7):
@@ -69,8 +79,7 @@ def draw_keyboard(ax, title, white_colors, black_colors, white_labels, black_lab
             ax.text(i + 0.5, y_pos, white_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=3,
                     bbox=dict(boxstyle=f"circle,pad={pad_size}", fc="white", ec="black", lw=l_weight))
 
-    # Draw black keys
-    black_positions = [0.7, 1.7, 3.7, 4.7, 5.7]
+    # Draw black keys (位置を動的に変更)
     for i, pos in enumerate(black_positions):
         rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor=black_colors[i], hatch=b_hatches[i], zorder=2)
         ax.add_patch(rect)
@@ -130,6 +139,11 @@ for i in range(len(path_indices) - 1):
 for grid_index, root_note in enumerate(display_order):
     ax = axes_flat[grid_index]
     
+    # ここでルート音がF（5）以上かどうかを判定し、マッピングと黒鍵位置を切り替え
+    use_f_start = root_note >= 5
+    current_mapping = f_note_mapping if use_f_start else c_note_mapping
+    current_black_positions = f_black_positions if use_f_start else c_black_positions
+    
     w_colors = ['white'] * 7
     b_colors = ['white'] * 5
     w_hatches = ['..'] * 7
@@ -142,7 +156,7 @@ for grid_index, root_note in enumerate(display_order):
     
     for step, interval in enumerate(major_intervals):
         note_index = (root_note + interval) % 12
-        is_white, list_index = note_mapping[note_index]
+        is_white, list_index = current_mapping[note_index]  # 切り替えたマッピングを使用
         label_text = scale_labels[root_note][step] 
         
         if is_white:
@@ -158,7 +172,8 @@ for grid_index, root_note in enumerate(display_order):
             if step == 0:
                 b_is_root[list_index] = True
             
-    draw_keyboard(ax, key_names[root_note], w_colors, b_colors, w_labels, b_labels, w_is_root, b_is_root, w_hatches, b_hatches)
+    # black_positions を渡す
+    draw_keyboard(ax, key_names[root_note], w_colors, b_colors, w_labels, b_labels, w_is_root, b_is_root, w_hatches, b_hatches, current_black_positions)
 
 # Add main title
 fig.suptitle('Scale Cheat Sheet', fontsize=24, fontweight='bold', y=0.96)
@@ -201,6 +216,6 @@ fig.add_artist(Line2D([0.345, 0.39], [0.65, 0.65], **line_style))   # Top horizo
 fig.add_artist(Line2D([0.345, 0.39], [0.24, 0.24], **line_style))   # Bottom horizontal hook
 
 # Save outputs
-plt.savefig('scale_cheat_sheet.png', dpi=300, bbox_inches='tight')  # High-res for README
-plt.savefig('scale_cheat_sheet.pdf')                                # A4 layout for printing
-print("Successfully generated the A4 portrait Scale Cheat Sheet!")
+plt.savefig('scale_cheat_sheet_v2.png', dpi=300, bbox_inches='tight')
+plt.savefig('scale_cheat_sheet_v2.pdf')
+print("Successfully generated the dynamic F/C start Scale Cheat Sheet!")
