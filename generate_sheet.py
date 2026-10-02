@@ -63,35 +63,46 @@ display_order = [
     8,  1,  6    # Ab, Db, Gb
 ]
 
-# 追加: black_positionsを引数で受け取るように変更
-def draw_keyboard(ax, title, white_colors, black_colors, white_labels, black_labels, w_is_root, b_is_root, w_hatches, b_hatches, black_positions):
+def draw_keyboard(ax, title, w_in_scale, b_in_scale, w_labels, b_labels, w_is_root, b_is_root, black_positions):
     """Draws a one-octave keyboard with circled note labels"""
     # Draw white keys
     for i in range(7):
-        rect = patches.Rectangle((i, 0), 1, 4, linewidth=1.2, edgecolor='black', facecolor=white_colors[i], hatch=w_hatches[i], zorder=1)
+        face_c = 'white'
+        hatch_p = None if w_in_scale[i] else '..'
+        rect = patches.Rectangle((i, 0), 1, 4, linewidth=1.2, edgecolor='black', facecolor=face_c, hatch=hatch_p, zorder=1)
         ax.add_patch(rect)
         
-        if white_labels[i]:
+        if w_labels[i]:
             f_size = 11 if w_is_root[i] else 9
             pad_size = 0.4 if w_is_root[i] else 0.3
             l_weight = 1.5 if w_is_root[i] else 1.0
             y_pos = 0.68 if w_is_root[i] else 0.6  # Slightly elevate root notes
             
-            ax.text(i + 0.5, y_pos, white_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=3,
+            ax.text(i + 0.5, y_pos, w_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=3,
                     bbox=dict(boxstyle=f"circle,pad={pad_size}", fc="white", ec="black", lw=l_weight))
 
     # Draw black keys (位置を動的に変更)
     for i, pos in enumerate(black_positions):
-        rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor=black_colors[i], hatch=b_hatches[i], zorder=2)
-        ax.add_patch(rect)
+        # 1. ベースとなる黒鍵（常に黒）
+        base_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='black', zorder=2)
+        ax.add_patch(base_rect)
         
-        if black_labels[i]:
+        # スケール外の黒鍵のみ「白の網掛け」を追加
+        if not b_in_scale[i]:
+            # 2. 白い点のレイヤー
+            hatch_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='white', facecolor='none', hatch='..', zorder=2.1)
+            ax.add_patch(hatch_rect)
+            # 3. 外枠が白くならないように黒い枠線を再描画
+            border_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='none', zorder=2.2)
+            ax.add_patch(border_rect)
+            
+        if b_labels[i]:
             f_size = 10 if b_is_root[i] else 8
             pad_size = 0.3 if b_is_root[i] else 0.2
             l_weight = 1.5 if b_is_root[i] else 1.0
             y_pos = 2.36 if b_is_root[i] else 2.3  # Slightly elevate root notes
             
-            ax.text(pos + 0.3, y_pos, black_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=4,
+            ax.text(pos + 0.3, y_pos, b_labels[i], ha='center', va='center', fontsize=f_size, fontweight='bold', zorder=4,
                     bbox=dict(boxstyle=f"circle,pad={pad_size}", fc="white", ec="black", lw=l_weight))
 
     ax.set_xlim(0, 7)
@@ -151,8 +162,8 @@ def generate_cheat_sheet(mode="dynamic", output_prefix="scale_cheat_sheet"):
         current_mapping = f_note_mapping if use_f_start else c_note_mapping
         current_black_positions = f_black_positions if use_f_start else c_black_positions
         
-        w_colors, b_colors = ['white'] * 7, ['white'] * 5
-        w_hatches, b_hatches = ['..'] * 7, ['..'] * 5
+        w_in_scale = [False] * 7
+        b_in_scale = [False] * 5
         w_labels, b_labels = [''] * 7, [''] * 5
         w_is_root, b_is_root = [False] * 7, [False] * 5
         
@@ -162,18 +173,16 @@ def generate_cheat_sheet(mode="dynamic", output_prefix="scale_cheat_sheet"):
             label_text = scale_labels[root_note][step] 
             
             if is_white:
-                w_colors[list_index] = 'white'
-                w_hatches[list_index] = None
+                w_in_scale[list_index] = True
                 w_labels[list_index] = label_text
                 if step == 0: w_is_root[list_index] = True
             else:
-                b_colors[list_index] = 'black'
-                b_hatches[list_index] = None
+                b_in_scale[list_index] = True
                 b_labels[list_index] = label_text
                 if step == 0: b_is_root[list_index] = True
                 
-        draw_keyboard(ax, key_names[root_note], w_colors, b_colors, w_labels, b_labels, 
-                      w_is_root, b_is_root, w_hatches, b_hatches, current_black_positions)
+        draw_keyboard(ax, key_names[root_note], w_in_scale, b_in_scale, w_labels, b_labels, 
+                      w_is_root, b_is_root, current_black_positions)
 
     # Add main title
     fig.suptitle('Scale Cheat Sheet', fontsize=24, fontweight='bold', y=0.96)
