@@ -67,10 +67,16 @@ def draw_keyboard(ax, title, w_in_scale, b_in_scale, w_labels, b_labels, w_is_ro
     """Draws a one-octave keyboard with circled note labels"""
     # Draw white keys
     for i in range(7):
-        face_c = 'white'
         hatch_p = None if w_in_scale[i] else '..'
-        rect = patches.Rectangle((i, 0), 1, 4, linewidth=1.2, edgecolor='black', facecolor=face_c, hatch=hatch_p, zorder=1)
-        ax.add_patch(rect)
+        w_dot_color = '#444444' # 白鍵のドットの色（必要に応じて調整）
+
+        # 1. 白鍵のベース（枠線とドットをグレーで描画）
+        base_rect = patches.Rectangle((i, 0), 1, 4, linewidth=1.2, edgecolor=w_dot_color, facecolor='white', hatch=hatch_p, zorder=1)
+        ax.add_patch(base_rect)
+
+        # 2. 枠線だけを真っ黒（'black'）で上書き
+        border_rect = patches.Rectangle((i, 0), 1, 4, linewidth=1.2, edgecolor='black', facecolor='none', zorder=1.1)
+        ax.add_patch(border_rect)
         
         if w_labels[i]:
             f_size = 11 if w_is_root[i] else 9
@@ -83,8 +89,10 @@ def draw_keyboard(ax, title, w_in_scale, b_in_scale, w_labels, b_labels, w_is_ro
 
     # Draw black keys (positions are dynamically adjusted)
     for i, pos in enumerate(black_positions):
+        b_color = '#444444' # 好みに合わせて #555555 などに変更してください
+
         # 1. Base black key (always solid black)
-        base_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='black', zorder=2)
+        base_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor=b_color, facecolor=b_color, zorder=2)
         ax.add_patch(base_rect)
         
         # Add white dotted hatching only for black keys not in the scale
@@ -93,7 +101,7 @@ def draw_keyboard(ax, title, w_in_scale, b_in_scale, w_labels, b_labels, w_is_ro
             hatch_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='white', facecolor='none', hatch='..', zorder=2.1)
             ax.add_patch(hatch_rect)
             # 3. Redraw black border to prevent it from turning white
-            border_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor='black', facecolor='none', zorder=2.2)
+            border_rect = patches.Rectangle((pos, 1.5), 0.6, 2.5, linewidth=1.2, edgecolor=b_color, facecolor='none', zorder=2.2)
             ax.add_patch(border_rect)
             
         if b_labels[i]:
